@@ -1,0 +1,79 @@
+# ==============================================================================
+# Breakneck — .gitignore (Godot 4.6 + Lean-Repo Work-File Backstop)
+# Keep WIP/source files on the box at /workspace/breakneck-work/<area>/
+# ==============================================================================
+
+# --- Godot 4.6 ---
+.godot/
+*.translation
+export_presets.cfg
+exports/
+builds/
+build/
+dist/
+out/
+mono_crash.*.json
+.import/
+
+# --- Python / Sim caches ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# --- Work-file backstop: 3D / 2D / Video / Renders ---
+*.blend
+*.blend[0-9]*
+*.psd
+*.psb
+*.xcf
+*.kra
+*.clip
+*.ai
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.gif
+*.webm
+renders/
+
+# --- Work-file backstop: Audio DAW / Stems ---
+*.als
+*.alc
+*.alp
+*.asd
+*.flp
+*.ptx
+*.logicx
+*_stem.*
+*_stems/
+stems/
+
+# --- Work-file backstop: ROM rips / Private reference (NEVER commit or ship) ---
+# Note: .bin is NOT ignored here so .gltf + .bin can use LFS if needed (prefer .glb).
+*.iso
+*.cue
+*.chd
+*.img
+*.mdf
+*.mds
+*.nrg
+*.pbp
+*.cso
+*.rvz
+*.rom
+*.srm
+rips/
+reference/

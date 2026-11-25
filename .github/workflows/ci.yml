@@ -1,0 +1,89 @@
+# Breakneck CI — Draft (Owner: Dominic; Godot step co-maintained with Enzo)
+# TODO: Confirm branch strategy (e.g. main-only + short-lived feature branches vs a persistent working branch).
+name: CI
+
+on:
+  push:
+    branches: [main, "feat/**", "proto/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lean-repo-guard:
+    name: Lean-Repo & LFS Guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (pointer files only)
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Check for forbidden work-file extensions
+        run: |
+          set -euo pipefail
+          BAD_FILES=$(git ls-files | grep -iE '\.(blend[0-9]*|als|alc|alp|asd|flp|ptx|logicx|psd|psb|xcf|kra|mp4|mov|mkv|avi|gif|webm|iso|cue|chd|img|mdf|mds|nrg|pbp|cso|rvz|rom|srm)$' || true)
+          if [ -n "$BAD_FILES" ]; then
+            echo "::error::Forbidden work/WIP/ROM files found in git:"
+            echo "$BAD_FILES"
+            exit 1
+          fi
+
+      - name: Check for large non-LFS files
+        run: |
+          set -euo pipefail
+          # TODO: Confirm max non-LFS file size threshold with Austin (default: 524288 bytes / 512 KiB).
+          MAX_BYTES=524288
+          LFS_FILES=$(git lfs ls-files -n 2>/dev/null || true)
+          FAIL=0
+          while IFS= read -r -d '' file; do
+            SIZE=$(stat -c%s "$file")
+            if [ "$SIZE" -gt "$MAX_BYTES" ]; then
+              if ! echo "$LFS_FILES" | grep -Fxq "$file"; then
+                echo "::error::File '$file' is ${SIZE} bytes (> ${MAX_BYTES}) and is NOT tracked by Git LFS."
+                FAIL=1
+              fi
+            fi
+          done < <(git ls-files -z)
+          exit "$FAIL"
+
+  godot-headless-check:
+    name: Godot 4.6 Headless Import Check
+    runs-on: ubuntu-latest
+    # TODO: Pin exact Godot 4.6.x release tag and verify official binary URL or maintained container image once Enzo creates project.godot.
+    env:
+      GODOT_VERSION: "4.6-stable" # TODO: update to exact patch (e.g. 4.6.3-stable)
+    steps:
+      - name: Checkout with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Check if project.godot exists
+        id: check_godot
+        run: |
+          if [ -f "project.godot" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::project.godot not yet committed (Enzo bootstrap pending); skipping Godot import check."
+          fi
+
+      - name: Download Godot headless binary
+        if: steps.check_godot.outputs.exists == 'true'
+        run: |
+          set -euo pipefail
+          # TODO: Verify exact Linux x86_64 archive filename & SHA256 for pinned GODOT_VERSION.
+          URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          curl -fsSL "$URL" -o godot.zip
+          unzip -q godot.zip -d /tmp/godot
+          chmod +x /tmp/godot/Godot_v*_linux.x86_64
+          echo "/tmp/godot" >> "$GITHUB_PATH"
+
+      - name: Run Godot headless import & quit
+        if: steps.check_godot.outputs.exists == 'true'
+        run: |
+          set -euo pipefail
+          GODOT_BIN=$(ls /tmp/godot/Godot_v*_linux.x86_64 | head -n 1)
+          "$GODOT_BIN" --headless --editor --quit --path .
+
+  # TODO (Silas & Enzo): Add sim-tests and sim-godot-parity jobs once sim/ and scripts/globals.gd exist.
