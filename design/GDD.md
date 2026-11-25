@@ -1,14 +1,16 @@
 # Breakneck — Game Design Document (Locked Core Outline)
 
-> **Status:** Bootstrap Outline (Locked Core Only)
+> **Status:** Bootstrap Outline (Locked Core Only). Core loop locked 2026-11-25 (Racing Lagoon structure, TXR-style races).
 > **Lead:** Dominic (`design/`) | **Final Authority:** Austin Hoang
 > **Rule:** Never invent balance numbers, rival names, or unapproved plot here. Numeric formulas live in `sim/` (Silas). Open decisions are tagged `[OPEN]`.
 
 ---
 
-## First Playable Target (decided 2026-11-25)
+## First Playable Target
 
-The first vertical slice is one night-expressway segment, one car, and one SP duel against a single rival. Work happens on short-lived `feat/*` or `proto/*` branches off `main`, deleted after merge.
+**Decided 2026-11-25 (Austin):** The first vertical slice is a small overworld stretch that drives into one closed-loop track, one car, and one SP duel against a single rival. Work happens on short-lived `feat/*` or `proto/*` branches off `main`, deleted after merge.
+
+- `[OPEN]` Overworld stretch size. (Dominic [layout] · Enzo [engine] · Akira [art])
 
 ---
 
@@ -16,31 +18,53 @@ The first vertical slice is one night-expressway segment, one car, and one SP du
 
 - **Title:** *Breakneck*
 - **Engine:** Godot 4.6
-- **Premise:** Tokyo Xtreme Racer / Shutoko Battle-style night-expressway street racer featuring SP-bar duels against rivals.
-- **Core Loop:** Cruise night expressway → trigger rival SP battle → high-stakes expressway duel (risk/return maneuvers) → earn progression/payouts → invest in Driver Tree & Car Tree → challenge tougher rivals.
+- **Premise:** Night street racer whose game loop follows Racing Lagoon (free-roam overworld, races on a limited number of closed-loop tracks) and whose races play closer to Tokyo Xtreme Racer / Shutoko Battle (SP-bar duels against rivals).
 - **Design Guardrails:**
-  - Immediate playable hook (first 3 minutes get the player straight onto the expressway and into an SP duel).
+  - Immediate playable hook (first 3 minutes get the player into an SP duel on a closed-loop track).
   - Fast retry on loss/restart; zero sluggish transitions.
   - All tuning parameters externalized in `sim/` and hot-reloadable/mirrored in Godot.
-- `[OPEN]` What Ryu Ga Gotoku / Racing Lagoon elements (if any beyond visual tone and RPG-style progression) are in scope for MVP? (e.g., off-car exploration vs menu/PA hubs, encounter presentation).
+- `[OPEN]` What further Ryu Ga Gotoku / Racing Lagoon elements (beyond the locked core loop, visual tone, and RPG-style progression) are in scope for MVP? (e.g., off-car exploration vs menu/PA hubs, encounter presentation). (Dominic; Austin has final say.)
 
 ---
 
-## 2. SP Battles *(Owners: Dominic [feel/rules] · Silas [sim/math] · Enzo [engine])*
+## 2. Core Loop *(Owner: Dominic)*
+
+**Locked Core (decided 2026-11-25):**
+Breakneck's game loop follows Racing Lagoon. The player free-roams an overworld and races on a limited number of closed-loop tracks. The races themselves play closer to Tokyo Xtreme Racer: head-to-head **SP-bar duels**.
+
+Loop, in order:
+1. Free-roam the overworld.
+2. Enter one of a limited set of closed-loop tracks.
+3. Trigger a rival SP battle on that track.
+4. Run a high-stakes SP-bar duel (risk/return maneuvers).
+5. Earn progression/payouts; invest in the Driver Tree and Car Trees.
+6. Return to the overworld and take on tougher rivals.
+
+The game is **not** one continuous expressway. Cruising and dueling do not share a single unbounded road; roaming and racing are separate spaces.
+
+**To Be Detailed (Do Not Invent Values Yet):**
+- `[OPEN]` Overworld size, layout, and what the player can do there besides reaching tracks. (Nori [story/rivals] · Enzo [engine] · Akira [art] · Dominic [layout])
+- `[OPEN]` Track count, and how each track is entered from the overworld. (Enzo [engine] · Dominic [layout] · Akira [art])
+- `[OPEN]` How rivals are placed or encountered across the overworld and tracks. (Nori [story/rivals])
+- `[OPEN]` Balance numbers that fall out of this loop (payouts, travel vs race pacing). (Silas [sim/numbers])
+
+---
+
+## 3. SP Battles *(Owners: Dominic [feel/rules] · Silas [sim/math] · Enzo [engine])*
 
 **Locked Core:**
-- **TXR-style SP Battles:** Head-to-head duels against rivals on the night expressway using an **SP bar** (Spirit/Stamina Points duel health, sized by Driver Stamina).
+- **TXR-style SP Battles:** Head-to-head duels against rivals on closed-loop tracks using an **SP bar** (Spirit/Stamina Points duel health, sized by Driver Stamina).
 
 **To Be Detailed (Do Not Invent Values Yet):**
 - Win/loss conditions, SP drain triggers (distance gap, lead/chase pressure, clean vs sloppy driving, collisions), and comeback/rubberband rules.
-- How battle initiation works on the expressway (e.g., headlight flash / proximity trigger) and how battles end (SP depletion, finish gate, or forfeit).
-- `[OPEN]` Exact SP drain model: pure distance-gap drain, active attack/defense maneuvers, or hybrid?
-- `[OPEN]` How traffic, wall impacts, and cornering mistakes interact with SP loss and battle pacing.
-- `[OPEN]` Battle length target (average duel duration in seconds/km) and rematch/retry flow.
+- How a battle is initiated (from the overworld, on the track, or both) and how battles end (SP depletion, finish gate, or forfeit).
+- `[OPEN]` Exact SP drain model: pure distance-gap drain, active attack/defense maneuvers, or hybrid? (Silas [sim/numbers] · Dominic [feel/rules])
+- `[OPEN]` How traffic, wall impacts, and cornering mistakes interact with SP loss and battle pacing. (Silas [sim/numbers] · Enzo [engine] · Dominic [feel])
+- `[OPEN]` Battle length target (average duel duration) and rematch/retry flow. (Silas [sim/numbers] · Dominic [feel])
 
 ---
 
-## 3. Driver Tree *(Owners: Silas [math/design/systems/] · Dominic [design/])*
+## 4. Driver Tree *(Owners: Silas [math/design/systems/] · Dominic [design/])*
 
 **Locked Core — Three Branches:**
 1. **Technique:** Gates which cars the driver can unlock/handle, and **seeds car Mastery**.
@@ -55,7 +79,7 @@ The first vertical slice is one night-expressway segment, one car, and one SP du
 
 ---
 
-## 4. Per-Car Trees *(Owners: Silas [math/design/systems/] · Dominic [design/] · Enzo [data/garage])*
+## 5. Per-Car Trees *(Owners: Silas [math/design/systems/] · Dominic [design/] · Enzo [data/garage])*
 
 **Locked Core — Four Pillars per Car:**
 1. **Base Stats:** Each car's baseline driving/duel identity.
@@ -72,16 +96,19 @@ The first vertical slice is one night-expressway segment, one car, and one SP du
 
 ---
 
-## 5. Expressway & Handling Feel *(Owners: Enzo [physics/engine] · Dominic [layout/feel] · Silas [params])*
+## 6. World, Tracks & Handling Feel *(Owners: Enzo [physics/engine] · Dominic [layout/feel] · Silas [params])*
 
-- **Setting:** Night expressway loop/network (Shutoko-inspired).
+**Locked Core:**
+- **World structure:** A free-roam overworld plus a limited number of closed-loop race tracks (see Core Loop). Not a single continuous expressway.
 - **Playtest & Debug Harness:** Debug HUD, reproducible state token, headless sim/run parity.
-- `[OPEN]` Physics model: arcade-sim grip/drift hybrid, Tokyo Xtreme Racer-style heavy high-speed stability, or Racing Lagoon-style drift-focused?
-- `[OPEN]` Expressway scope for MVP: one loop/segment vs multi-district expressway, traffic density, PA (parking area) hubs.
+
+**To Be Detailed:**
+- `[OPEN]` Physics model: arcade-sim grip/drift hybrid, Tokyo Xtreme Racer-style heavy high-speed stability, or Racing Lagoon-style drift-focused? (Enzo [engine] · Dominic [feel] · Silas [params])
+- `[OPEN]` Overworld and track layout language, traffic density on each, and whether PA (parking area) or other hubs exist. Size and track count stay unset — see Core Loop. (Enzo [engine] · Dominic [layout] · Akira [art] · Silas [params])
 
 ---
 
-## 6. Art & UI Direction *(Owner: Akira [art/, assets/])*
+## 7. Art & UI Direction *(Owner: Akira [art/, assets/])*
 
 **Locked Core:**
 - **Visual Style:** Gran Turismo 2 / Racing Lagoon PS1-to-PS2 look — **strictly NO cel shading**.
@@ -90,27 +117,31 @@ The first vertical slice is one night-expressway segment, one car, and one SP du
 - Render pipeline (resolution, vertex snap/affine or PS2-era crispness, texture filtering, lighting/reflections, post-process, HUD typography & color coding).
 - `[OPEN]` Target internal render resolution & PS1-vs-PS2 fidelity balance (e.g. PS1 jitter/dither vs cleaner early-PS2/GT2-to-GT3 shading).
 - `[OPEN]` UI layout for dual bars (SP battle bar + separate Spirit meter), speedo/tach, and Driver/Car trees.
+- `[OPEN]` Art scope for the overworld vs the closed-loop tracks (no size or track count implied). (Akira [art])
 
 ---
 
-## 7. Narrative, World & Rivals *(Owner: Nori [story/])*
+## 8. Narrative, World & Rivals *(Owner: Nori [story/])*
+
+**Locked Core (structure only):** Rivals and story sit on the Racing Lagoon-style loop (overworld free-roam, races on closed-loop tracks). No plot, roster, or rival names are locked here.
 
 **To Be Detailed by Nori (pending Austin's direction):**
 - Rival hierarchy (wanderers, team leaders, bosses), encounter triggers, pre/post-battle barks, and world tone.
-- `[OPEN]` Tone & narrative structure: grounded street-racer mystery (TXR) vs surreal/melodramatic street RPG (Racing Lagoon) vs RGG-style side stories?
-- `[OPEN]` Rival roster size and progression structure for vertical slice / MVP.
+- **Decided 2026-11-25:** Breakneck reuses much of Midnight Apex's narrative. Its characters and structure carry over, retooled for SP duels, the driver tree and the per-car trees. Nori owns the retool.
+- `[OPEN]` Rival roster size and progression structure for vertical slice / MVP. (Nori)
+- `[OPEN]` How rivals are encountered in the overworld vs on tracks. (Nori)
 
 ---
 
-## 8. Audio & Music *(Owner: Aiden [audio/])*
+## 9. Audio & Music *(Owner: Aiden [audio/])*
 
 **To Be Detailed by Aiden:**
-- Engine/exhaust notes, turbo/blow-off, collision/scrape impact, UI/SP-drain cues, night expressway ambience, and BGM direction.
+- Engine/exhaust notes, turbo/blow-off, collision/scrape impact, UI/SP-drain cues, overworld and track ambience, and BGM direction.
 - `[OPEN]` Music genre/tempo direction (eurobeat, PS1/PS2 fusion-jazz/techno like Racing Lagoon/GT2, dark synth, or dynamic battle layers).
 
 ---
 
-## 9. Production, QA & Release *(Owners: Penny [plan/] · Maya [marketing/])*
+## 10. Production, QA & Release *(Owners: Penny [plan/] · Maya [marketing/])*
 
-- **Penny (`plan/`):** Milestone schedule, vertical-slice scope, playtest checklists.
+- **Penny (`plan/`):** Milestone schedule, vertical-slice scope (see First Playable Target), playtest checklists.
 - **Maya (`marketing/`):** Positioning, store/social copy, media capture guidelines (keep heavy renders/MP4s off git).
