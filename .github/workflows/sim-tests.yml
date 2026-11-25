@@ -1,5 +1,6 @@
-# Breakneck sim tests — Owner: Dominic (.github/). Silas owns sim/ and tests/.
-# Skips cleanly until tests/ exists. Do not add sim/ or tests/ from this workflow.
+# Breakneck sim tests — Owner: Dominic (.github/). Silas owns sim/, including sim/tests/.
+# Runs pytest on sim/tests. Root tests/ is a fallback only when sim/tests is absent.
+# Skips cleanly until either folder exists. Do not add sim/ or tests/ from this workflow.
 name: Sim Tests
 
 on:
@@ -33,24 +34,27 @@ jobs:
         with:
           lfs: false
 
-      - name: Check if tests/ exists
+      - name: Choose pytest target
         id: check_tests
         run: |
-          if [ -d "tests" ]; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
+          if [ -d "sim/tests" ]; then
+            echo "target=sim/tests" >> "$GITHUB_OUTPUT"
+          elif [ -d "tests" ]; then
+            echo "target=tests" >> "$GITHUB_OUTPUT"
+            echo "::notice::sim/tests is absent; falling back to tests/."
           else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::tests/ not yet committed (Silas owns sim/ and tests/); skipping pytest."
+            echo "target=" >> "$GITHUB_OUTPUT"
+            echo "::notice::sim/tests not yet committed (Silas owns sim/); skipping pytest."
           fi
 
       - name: Set up Python 3.12
-        if: steps.check_tests.outputs.exists == 'true'
+        if: steps.check_tests.outputs.target != ''
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install pytest and requirements
-        if: steps.check_tests.outputs.exists == 'true'
+        if: steps.check_tests.outputs.target != ''
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
@@ -66,5 +70,5 @@ jobs:
           python -m pip install pytest
 
       - name: Run pytest
-        if: steps.check_tests.outputs.exists == 'true'
-        run: pytest tests/
+        if: steps.check_tests.outputs.target != ''
+        run: pytest "${{ steps.check_tests.outputs.target }}"
