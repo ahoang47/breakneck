@@ -8,7 +8,7 @@
 
 ## First Playable Target
 
-**Decided 2026-11-25 (Austin):** The first vertical slice is a small overworld stretch that drives into one closed-loop track, one car, and one SP duel against a single rival. Work happens on short-lived `feat/*` or `proto/*` branches off `main`, deleted after merge.
+**Decided 2026-11-25 (Austin):** The first vertical slice is a small overworld stretch that drives into one closed-loop track, one car, and one Stamina duel against a single rival. Work happens on short-lived `feat/*` or `proto/*` branches off `main`, deleted after merge.
 
 - `[OPEN]` Overworld stretch size. (Dominic [layout] · Enzo [engine] · Akira [art])
 
@@ -18,9 +18,9 @@
 
 - **Title:** *Breakneck*
 - **Engine:** Godot 4.6
-- **Premise:** Night street racer whose game loop follows Racing Lagoon (free-roam overworld, races on a limited number of closed-loop tracks) and whose races play closer to Tokyo Xtreme Racer / Shutoko Battle (SP-bar duels against rivals).
+- **Premise:** Night street racer whose game loop follows Racing Lagoon (free-roam overworld, races on a limited number of closed-loop tracks) and whose races play closer to Tokyo Xtreme Racer / Shutoko Battle (Stamina duels against rivals).
 - **Design Guardrails:**
-  - Immediate playable hook (first 3 minutes get the player into an SP duel on a closed-loop track).
+  - Immediate playable hook (first 3 minutes get the player into a Stamina duel on a closed-loop track).
   - Fast retry on loss/restart; zero sluggish transitions.
   - All tuning parameters externalized in `sim/` and hot-reloadable/mirrored in Godot.
 - `[OPEN]` What further Ryu Ga Gotoku / Racing Lagoon elements (beyond the locked core loop, visual tone, and RPG-style progression) are in scope for MVP? (e.g., off-car exploration vs menu/PA hubs, encounter presentation). (Dominic; Austin has final say.)
@@ -30,13 +30,13 @@
 ## 2. Core Loop *(Owner: Dominic)*
 
 **Locked Core (decided 2026-11-25):**
-Breakneck's game loop follows Racing Lagoon. The player free-roams an overworld and races on a limited number of closed-loop tracks. The races themselves play closer to Tokyo Xtreme Racer: head-to-head **SP-bar duels**.
+Breakneck's game loop follows Racing Lagoon. The player free-roams an overworld and races on a limited number of closed-loop tracks. The races themselves play closer to Tokyo Xtreme Racer: head-to-head **Stamina duels**.
 
 Loop, in order:
 1. Free-roam the overworld.
 2. Enter one of a limited set of closed-loop tracks.
-3. Trigger a rival SP battle on that track.
-4. Run a high-stakes SP-bar duel (risk/return maneuvers).
+3. Trigger a rival Stamina duel on that track.
+4. Run a high-stakes Stamina duel (risk/return maneuvers).
 5. Earn progression/payouts; invest in the Driver Tree and Car Trees.
 6. Return to the overworld and take on tougher rivals.
 
@@ -50,16 +50,16 @@ The game is **not** one continuous expressway. Cruising and dueling do not share
 
 ---
 
-## 3. SP Battles *(Owners: Dominic [feel/rules] · Silas [sim/math] · Enzo [engine])*
+## 3. Stamina Duels *(Owners: Dominic [feel/rules] · Silas [sim/math] · Enzo [engine])*
 
 **Locked Core:**
-- **TXR-style SP Battles:** Head-to-head duels against rivals on closed-loop tracks using an **SP bar** (Spirit/Stamina Points duel health, sized by Driver Stamina).
+- **TXR-style duels:** Head-to-head duels against rivals on closed-loop tracks using a **Stamina bar** that reads as a health bar.
 
 **To Be Detailed (Do Not Invent Values Yet):**
-- Win/loss conditions, SP drain triggers (distance gap, lead/chase pressure, clean vs sloppy driving, collisions), and comeback/rubberband rules.
-- How a battle is initiated (from the overworld, on the track, or both) and how battles end (SP depletion, finish gate, or forfeit).
-- `[OPEN]` Exact SP drain model: pure distance-gap drain, active attack/defense maneuvers, or hybrid? (Silas [sim/numbers] · Dominic [feel/rules])
-- `[OPEN]` How traffic, wall impacts, and cornering mistakes interact with SP loss and battle pacing. (Silas [sim/numbers] · Enzo [engine] · Dominic [feel])
+- Win/loss conditions, Stamina drain triggers (distance gap, lead/chase pressure, clean vs sloppy driving, collisions), and comeback/rubberband rules.
+- How a battle is initiated (from the overworld, on the track, or both) and how battles end (Stamina depletion, finish gate, or forfeit).
+- `[OPEN]` Exact Stamina drain model: pure distance-gap drain, active attack/defense maneuvers, or hybrid? (Silas [sim/numbers] · Dominic [feel/rules])
+- `[OPEN]` How traffic, wall impacts, and cornering mistakes interact with Stamina loss and battle pacing. (Silas [sim/numbers] · Enzo [engine] · Dominic [feel])
 - `[OPEN]` Battle length target (average duel duration) and rematch/retry flow. (Silas [sim/numbers] · Dominic [feel])
 
 ---
@@ -69,7 +69,7 @@ The game is **not** one continuous expressway. Cruising and dueling do not share
 **Locked Core — Three Branches:**
 1. **Technique:** Gates which cars the driver can unlock/handle, and **seeds car Mastery**.
 2. **Spirit:** Boosts **Spirit gain per maneuver** and holds **passive buffs**.
-3. **Stamina:** **Sizes the SP bar**.
+3. **Stamina:** Raises the car's Stamina points (its pool). There is one Stamina: the duel bar and this stat. The Stamina bar is always the same on-screen size and reads as a health bar. The point pool is normalized to that fixed size; the stat does not make the bar visually bigger.
 
 **To Be Detailed:**
 - Progression currency/XP source, node/rank structure, and how Driver Technique gates car tiers or classes.
@@ -83,7 +83,7 @@ The game is **not** one continuous expressway. Cruising and dueling do not share
 
 **Locked Core — Four Pillars per Car:**
 1. **Base Stats:** Each car's baseline driving/duel identity.
-2. **Specials:** Active abilities fueled by a **separate Spirit meter** (distinct from the SP battle bar).
+2. **Specials:** Active abilities fueled by a **separate Spirit meter** (distinct from the Stamina bar).
 3. **Mod Tiers:** Staged vehicle upgrade tiers.
 4. **Mastery:** Per-car mastery progression, **seeded by Driver Technique**.
 
@@ -116,7 +116,7 @@ The game is **not** one continuous expressway. Cruising and dueling do not share
 **To Be Detailed by Akira:**
 - Render pipeline (resolution, vertex snap/affine or PS2-era crispness, texture filtering, lighting/reflections, post-process, HUD typography & color coding).
 - `[OPEN]` Target internal render resolution & PS1-vs-PS2 fidelity balance (e.g. PS1 jitter/dither vs cleaner early-PS2/GT2-to-GT3 shading).
-- `[OPEN]` UI layout for dual bars (SP battle bar + separate Spirit meter), speedo/tach, and Driver/Car trees.
+- `[OPEN]` UI layout for dual bars (Stamina bar + separate Spirit meter), speedo/tach, and Driver/Car trees.
 - `[OPEN]` Art scope for the overworld vs the closed-loop tracks (no size or track count implied). (Akira [art])
 
 ---
@@ -127,7 +127,7 @@ The game is **not** one continuous expressway. Cruising and dueling do not share
 
 **To Be Detailed by Nori (pending Austin's direction):**
 - Rival hierarchy (wanderers, team leaders, bosses), encounter triggers, pre/post-battle barks, and world tone.
-- **Decided 2026-11-25:** Breakneck reuses much of Midnight Apex's narrative. Its characters and structure carry over, retooled for SP duels, the driver tree and the per-car trees. Nori owns the retool.
+- **Decided 2026-11-25:** Breakneck reuses much of Midnight Apex's narrative. Its characters and structure carry over, retooled for Stamina duels, the driver tree and the per-car trees. Nori owns the retool.
 - `[OPEN]` Rival roster size and progression structure for vertical slice / MVP. (Nori)
 - `[OPEN]` How rivals are encountered in the overworld vs on tracks. (Nori)
 
@@ -136,7 +136,7 @@ The game is **not** one continuous expressway. Cruising and dueling do not share
 ## 9. Audio & Music *(Owner: Aiden [audio/])*
 
 **To Be Detailed by Aiden:**
-- Engine/exhaust notes, turbo/blow-off, collision/scrape impact, UI/SP-drain cues, overworld and track ambience, and BGM direction.
+- Engine/exhaust notes, turbo/blow-off, collision/scrape impact, UI/Stamina-drain cues, overworld and track ambience, and BGM direction.
 - `[OPEN]` Music genre/tempo direction (eurobeat, PS1/PS2 fusion-jazz/techno like Racing Lagoon/GT2, dark synth, or dynamic battle layers).
 
 ---
