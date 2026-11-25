@@ -1,0 +1,70 @@
+# Breakneck sim tests — Owner: Dominic (.github/). Silas owns sim/ and tests/.
+# Skips cleanly until tests/ exists. Do not add sim/ or tests/ from this workflow.
+name: Sim Tests
+
+on:
+  push:
+    branches: [main, "feat/**", "proto/**"]
+    paths:
+      - "sim/**"
+      - "tests/**"
+      - "requirements.txt"
+      - "requirements-*.txt"
+      - "pyproject.toml"
+      - ".github/workflows/sim-tests.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "sim/**"
+      - "tests/**"
+      - "requirements.txt"
+      - "requirements-*.txt"
+      - "pyproject.toml"
+      - ".github/workflows/sim-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    name: Python 3.12 pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Check if tests/ exists
+        id: check_tests
+        run: |
+          if [ -d "tests" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::tests/ not yet committed (Silas owns sim/ and tests/); skipping pytest."
+          fi
+
+      - name: Set up Python 3.12
+        if: steps.check_tests.outputs.exists == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest and requirements
+        if: steps.check_tests.outputs.exists == 'true'
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          if [ -f sim/requirements.txt ]; then
+            python -m pip install -r sim/requirements.txt
+          fi
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+          if [ -f pyproject.toml ]; then
+            python -m pip install .
+          fi
+          python -m pip install pytest
+
+      - name: Run pytest
+        if: steps.check_tests.outputs.exists == 'true'
+        run: pytest tests/
