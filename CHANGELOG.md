@@ -8,6 +8,7 @@ Valid area tags: `[design]`, `[systems]`, `[art]`, `[engine]`, `[story]`, `[audi
 
 ---
 
+- 2026-11-25 [systems] (Silas): Point `sim/tests` path setup at the repo root — After the move, `parent.parent` is `sim/`, so `import sim` failed when pytest did not already have the repo root on `sys.path`.
 - 2026-11-25 [design] (Dominic): Run sim-tests with `python -m pytest` — The `pytest` script does not put the repo root on `sys.path`, so collection failed with `No module named 'sim'`. `python -m pytest` is the command Silas's tests pass under.
 - 2026-11-25 [design] (Dominic): Pointed sim-tests at `sim/tests`, with root `tests/` only as a fallback when `sim/tests` is absent — Silas's tests live in `sim/tests`, not a root `tests/` folder.
 - 2026-11-25 [design] (Dominic): Added `.github/workflows/sim-tests.yml` (Python 3.12, pytest on `tests/`, requirements from `sim/requirements.txt` or a root `requirements.txt` / `pyproject.toml` when present; notice-and-pass when `tests/` is absent; path-filtered, plus `workflow_dispatch`) — Added the sim-tests workflow per Austin so Silas's sim tests gate merges without Silas editing `.github/`.
