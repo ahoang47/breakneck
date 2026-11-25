@@ -1,0 +1,57 @@
+"""Breakneck progression & balance simulation package (stdlib only)."""
+
+from sim.constants import PLACEHOLDER_META
+from sim.models import (
+    CarSpec,
+    CarState,
+    DriverState,
+    ModPartSpec,
+    PlayerProfile,
+    RaceOutcome,
+    load_mod_catalog,
+    load_roster,
+)
+from sim.rules import (
+    apply_race_result,
+    buy_mod_part,
+    can_unlock_car,
+    car_effective_power,
+    compute_mastery_floor,
+    compute_race_credits,
+    compute_racing_spirit_meter_gain,
+    compute_stamina_bar_max,
+    effective_car_mastery,
+    effective_car_stats,
+    equip_mod_part,
+    mod_tier_ceiling,
+    special_level_bounds,
+    unequip_mod_class,
+    unlocked_cars,
+)
+
+__all__ = [
+    "PLACEHOLDER_META",
+    "CarSpec",
+    "CarState",
+    "DriverState",
+    "ModPartSpec",
+    "PlayerProfile",
+    "RaceOutcome",
+    "apply_race_result",
+    "buy_mod_part",
+    "can_unlock_car",
+    "car_effective_power",
+    "compute_mastery_floor",
+    "compute_race_credits",
+    "compute_racing_spirit_meter_gain",
+    "compute_stamina_bar_max",
+    "effective_car_mastery",
+    "effective_car_stats",
+    "equip_mod_part",
+    "load_mod_catalog",
+    "load_roster",
+    "mod_tier_ceiling",
+    "special_level_bounds",
+    "unequip_mod_class",
+    "unlocked_cars",
+]
