@@ -8,6 +8,7 @@ Valid area tags: `[design]`, `[systems]`, `[art]`, `[engine]`, `[story]`, `[audi
 
 ---
 
+- 2026-11-25 [engine] (Enzo): Added Godot 4.6.3 (`4.6.3-stable`) project skeleton (`project.godot`), empty `Overworld` (`scenes/overworld/overworld.tscn`) and closed-loop `TrackLoop` (`scenes/track/track_loop.tscn` with closed `Path3D` marker, no art/geometry) scenes, persistent `DriverProfile` / `CarBuild` resources and `GameState` autoload (`scripts/save/`, `scripts/autoload/`), `shaders/` folder init, and headless scene-switch + `.tres` save/load round-trip test (`scenes/tests/test_skeleton.tscn`, `scripts/tests/test_skeleton.gd`) — Satisfies the Sprint 1 engine skeleton milestone. Balance and progression fields stay at 0/empty pending a later mirror of Silas's `sim/`. Physics is locked at Godot's default 60 Hz per Austin. Renderer stays Forward+ (Godot default).
 - 2026-11-25 [systems] (Silas): Point `sim/tests` path setup at the repo root — After the move, `parent.parent` is `sim/`, so `import sim` failed when pytest did not already have the repo root on `sys.path`.
 - 2026-11-25 [design] (Dominic): Run sim-tests with `python -m pytest` — The `pytest` script does not put the repo root on `sys.path`, so collection failed with `No module named 'sim'`. `python -m pytest` is the command Silas's tests pass under.
 - 2026-11-25 [design] (Dominic): Pointed sim-tests at `sim/tests`, with root `tests/` only as a fallback when `sim/tests` is absent — Silas's tests live in `sim/tests`, not a root `tests/` folder.

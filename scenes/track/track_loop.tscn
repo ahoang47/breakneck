@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/scenes/track_loop.gd" id="1_track"]
+
+[sub_resource type="Curve3D" id="Curve3D_loop"]
+closed = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 100),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+
+[node name="TrackLoop" type="Node3D"]
+script = ExtResource("1_track")
+
+[node name="LoopPath" type="Path3D" parent="."]
+curve = SubResource("Curve3D_loop")
