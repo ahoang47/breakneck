@@ -8,6 +8,7 @@ Valid area tags: `[design]`, `[systems]`, `[art]`, `[engine]`, `[story]`, `[audi
 
 ---
 
+- 2026-11-25 [design] (Dominic): Run sim-tests with `python -m pytest` — The `pytest` script does not put the repo root on `sys.path`, so collection failed with `No module named 'sim'`. `python -m pytest` is the command Silas's tests pass under.
 - 2026-11-25 [design] (Dominic): Pointed sim-tests at `sim/tests`, with root `tests/` only as a fallback when `sim/tests` is absent — Silas's tests live in `sim/tests`, not a root `tests/` folder.
 - 2026-11-25 [design] (Dominic): Added `.github/workflows/sim-tests.yml` (Python 3.12, pytest on `tests/`, requirements from `sim/requirements.txt` or a root `requirements.txt` / `pyproject.toml` when present; notice-and-pass when `tests/` is absent; path-filtered, plus `workflow_dispatch`) — Added the sim-tests workflow per Austin so Silas's sim tests gate merges without Silas editing `.github/`.
 - 2026-11-25 [design] (Dominic): Renamed the SP bar to Stamina so it reads as a health bar; the driver-tree Stamina stat raises the car's Stamina points (its pool), and those points are normalized to a bar that is always the same on-screen size — Per Austin, one name on purpose: the duel bar and the driver-tree stat are the same Stamina, and the stat does not make the bar visually bigger.
