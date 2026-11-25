@@ -1,0 +1,74 @@
+# Breakneck sim tests — Owner: Dominic (.github/). Silas owns sim/, including sim/tests/.
+# Runs pytest on sim/tests. Root tests/ is a fallback only when sim/tests is absent.
+# Skips cleanly until either folder exists. Do not add sim/ or tests/ from this workflow.
+name: Sim Tests
+
+on:
+  push:
+    branches: [main, "feat/**", "proto/**"]
+    paths:
+      - "sim/**"
+      - "tests/**"
+      - "requirements.txt"
+      - "requirements-*.txt"
+      - "pyproject.toml"
+      - ".github/workflows/sim-tests.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "sim/**"
+      - "tests/**"
+      - "requirements.txt"
+      - "requirements-*.txt"
+      - "pyproject.toml"
+      - ".github/workflows/sim-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    name: Python 3.12 pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Choose pytest target
+        id: check_tests
+        run: |
+          if [ -d "sim/tests" ]; then
+            echo "target=sim/tests" >> "$GITHUB_OUTPUT"
+          elif [ -d "tests" ]; then
+            echo "target=tests" >> "$GITHUB_OUTPUT"
+            echo "::notice::sim/tests is absent; falling back to tests/."
+          else
+            echo "target=" >> "$GITHUB_OUTPUT"
+            echo "::notice::sim/tests not yet committed (Silas owns sim/); skipping pytest."
+          fi
+
+      - name: Set up Python 3.12
+        if: steps.check_tests.outputs.target != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest and requirements
+        if: steps.check_tests.outputs.target != ''
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          if [ -f sim/requirements.txt ]; then
+            python -m pip install -r sim/requirements.txt
+          fi
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+          if [ -f pyproject.toml ]; then
+            python -m pip install .
+          fi
+          python -m pip install pytest
+
+      - name: Run pytest
+        if: steps.check_tests.outputs.target != ''
+        run: pytest "${{ steps.check_tests.outputs.target }}"
